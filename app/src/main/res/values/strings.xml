@@ -121,6 +121,8 @@
          <item>@drawable/bg_city2</item>
  -->
     </string-array>
-
+<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyBBGoPEmOhpfRYE7zxejlqaCHxyY75FSOw
+    </string>
 
 </resources>

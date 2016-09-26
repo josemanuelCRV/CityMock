@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.herprogramacion.alquileres.DTO.Proposal;
 
 
 /**
@@ -30,19 +31,19 @@ public class AdaptadorPropuestas extends RecyclerView.Adapter<AdaptadorPropuesta
             implements View.OnClickListener {
 
         // Referencias UI
-        public TextView viewTitle;
-        public TextView viewUbicacion;
-        public TextView viewBody;
-        public ImageView viewFoto;
-        public TextView viewFecha;
-        public TextView viewEstado;
-        public ImageView viewFlagState;
-        public TextView viewFollowers;
-        public TextView viewRepairit;
-        public FloatingActionButton viewFabFollow;
+        TextView viewTitle;
+         TextView viewUbicacion;
+         TextView viewBody;
+         ImageView viewFoto;
+         TextView viewFecha;
+         TextView viewEstado;
+         ImageView viewFlagState;
+         TextView viewFollowers;
+         TextView viewRepairit;
+         FloatingActionButton viewFabFollow;
 
 
-        public ViewHolder(View itemView) {
+         ViewHolder(View itemView) {
             super(itemView);
             viewTitle = (TextView) itemView.findViewById(R.id.titulo);
             viewFoto = (ImageView) itemView.findViewById(R.id.foto);
@@ -67,11 +68,33 @@ public class AdaptadorPropuestas extends RecyclerView.Adapter<AdaptadorPropuesta
     private String obtenerIdAlquiler(int posicion) {
         if (items != null) {
             if (items.moveToPosition(posicion)) {
+                Proposal proposal= new Proposal();
+                fillProposal(proposal);
+                DetailFragment.Proposal = proposal;
                 return items.getString(ConsultaPropuestas.ID_PROPUESTA);
             }
         }
 
         return null;
+    }
+
+    private void fillProposal(Proposal proposal) {
+        proposal.setID_PROPUESTA(items.getString(ConsultaPropuestas.ID_PROPUESTA));
+        proposal.setTITULO(items.getString(ConsultaPropuestas.TITULO));
+        proposal.setURL_IMAGEN(items.getString(ConsultaPropuestas.URL_IMAGEN));
+        proposal.setFECHA(items.getString(ConsultaPropuestas.FECHA));
+        proposal.setUBICACION(items.getString(ConsultaPropuestas.UBICACION));
+        proposal.setDESCRIPCION(items.getString(ConsultaPropuestas.DESCRIPCION));
+        proposal.setSTATUS(items.getString(ConsultaPropuestas.STATUS));
+        proposal.setFOLLOW(items.getString(ConsultaPropuestas.FOLLOW));
+        proposal.setREPAIRIT(items.getString(ConsultaPropuestas.REPAIRIT));
+        proposal.setIMG_PARALAX(items.getString(ConsultaPropuestas.IMG_PARALAX));
+        proposal.setCATEGORIA(items.getString(ConsultaPropuestas.CATEGORIA));
+        proposal.setLAT(items.getString(ConsultaPropuestas.LAT));
+        proposal.setLON(items.getString(ConsultaPropuestas.LON));
+        proposal.setUSER_NAME(items.getString(ConsultaPropuestas.USER_NAME));
+        proposal.setFOTO_USERCOM(items.getString(ConsultaPropuestas.FOTO_USERCOM));
+        proposal.setBODY_COMMENT(items.getString(ConsultaPropuestas.BODY_COMMENT));
     }
 
     AdaptadorPropuestas(Context contexto, OnItemClickListener escucha) {
@@ -152,6 +175,15 @@ public class AdaptadorPropuestas extends RecyclerView.Adapter<AdaptadorPropuesta
         int STATUS_FLAG = 8;
         int FOLLOW = 9;
         int REPAIRIT = 10;
+        int IMG_PARALAX = 11;
+        int CATEGORIA = 12;
+        int LAT = 13;
+        int LON = 14;
+        int USER_NAME = 15;
+        int FOTO_USERCOM = 16;
+        int BODY_COMMENT = 17;
+
+
 
     }
 }

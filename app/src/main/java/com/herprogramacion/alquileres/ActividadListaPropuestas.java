@@ -1,5 +1,7 @@
 package com.herprogramacion.alquileres;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -19,9 +21,10 @@ import com.herprogramacion.alquileres.provider.Contrato;
 
 public class ActividadListaPropuestas
         extends AppCompatActivity implements AdaptadorPropuestas.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+    public static String ID_PROPUESTA="";
 
-    private RecyclerView listaUI;
-    private LinearLayoutManager linearLayoutManager;
+    RecyclerView listaUI;
+    LinearLayoutManager linearLayoutManager;
     private AdaptadorPropuestas adaptador;
 
     @Override
@@ -49,9 +52,9 @@ public class ActividadListaPropuestas
 
         adaptador = new AdaptadorPropuestas(this, this);
         listaUI.setAdapter(adaptador);
-
         // Iniciar loader
         getSupportLoaderManager().restartLoader(1, null, this);
+
 
     }
 
@@ -74,8 +77,16 @@ public class ActividadListaPropuestas
 
     @Override
     public void onClick(AdaptadorPropuestas.ViewHolder holder, String idPropuesta) {
-        Snackbar.make(findViewById(android.R.id.content), ":id = " + idPropuesta,
-                Snackbar.LENGTH_LONG).show();
+        /*Snackbar.make(findViewById(android.R.id.content), ":id = " + idPropuesta,
+                Snackbar.LENGTH_LONG).show();*/
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.listcontainer, new DetailFragment(), "detail");
+        ID_PROPUESTA=idPropuesta;
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE); //Añade efecto fade out
+        ft.addToBackStack("detail");
+        ft.commit();
     }
 
 

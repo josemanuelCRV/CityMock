@@ -1,9 +1,12 @@
 package com.herprogramacion.alquileres;
 
 import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +17,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.herprogramacion.alquileres.DTO.Proposal;
+import com.herprogramacion.alquileres.UI.AdaptadorComment;
 /*import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,6 +57,7 @@ public class DetailFragment extends Fragment {
      * Etiqueta de depuración
      */
     public static final String TAG = DetailFragment.class.getSimpleName();
+    public static  Proposal Proposal=null;
 
 
     /*
@@ -72,7 +89,7 @@ public class DetailFragment extends Fragment {
     private Double lat;
     private Double lon;
 
-    // - AdaptadorComment mAdapter;
+    AdaptadorComment mAdapter;
 
     /*
     instancia global del administrador
@@ -85,7 +102,7 @@ public class DetailFragment extends Fragment {
     private ImageButton btnVolver;
 
     // instancia SupportMapFragment para el mapa
-    // private SupportMapFragment mSupportMapFragment;
+     private MapFragment mSupportMapFragment;
 
     // Propuesta seleccionada
     // private Propuesta PropSeleecionada = Infrastructure.getPropuestaSeleccionada();
@@ -142,46 +159,13 @@ public class DetailFragment extends Fragment {
         // Scroll general que contiene los Datos Detalle Propuesta + Contenedor Comentarios
         panoflasquesomos = (ScrollView) v.findViewById(R.id.panoflasquesomos);
 
+        mSupportMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapwhere);
+        //loadMap();
+
+
+
 
         viewImageParalax = (ImageView) v.findViewById(R.id.image_paralax);
-
-
-        // OBTENER EL MAP-FRAGMENT y colocarlo en el frame del fragment_detail
-
-/*        mSupportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapwhere);
-        if (mSupportMapFragment == null) {
-            FragmentManager fragmentManager = getFragmentManager();
-            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            mSupportMapFragment = SupportMapFragment.newInstance();
-            fragmentTransaction.replace(R.id.mapwhere, mSupportMapFragment).commit();
-        }
-
-        if (mSupportMapFragment != null) {
-            mSupportMapFragment.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    if (googleMap != null) {
-
-                        googleMap.getUiSettings().setAllGesturesEnabled(true);
-                        *//*
-                         En el constructor de la clase declaramos la variables (lat,lon)
-                        *//*
-
-                        // -> marker_latlng recoge la latitud y longitud en formato double//
-                        LatLng marker_latlng = new LatLng(lat, lon);
-                        // configurando la vista del mapa, setea posición, mueve la camara,aplica zoom, coloca título y controles
-                        CameraPosition cameraPosition = new CameraPosition.Builder().target(marker_latlng).zoom(15.0f).build();
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
-                        googleMap.moveCamera(cameraUpdate);
-                        googleMap.addMarker(new MarkerOptions().position(marker_latlng).title(PropSeleecionada.getTitle()));
-                        googleMap.getUiSettings().setCompassEnabled(true);
-                        googleMap.getUiSettings().setZoomControlsEnabled(true);
-
-                    }
-                }
-            });
-
-        }*/
 
 
         // Contenedor Comentarios que muestra las Cards
@@ -191,10 +175,10 @@ public class DetailFragment extends Fragment {
         scrollView = (InteractiveScrollView) v.findViewById(R.id.comentarios);
 
         // adapter recoge el Comentario seleccionado
-        //mAdapter = new AdaptadorComment(getContext(), Infrastructure.getComment());
+        mAdapter = new AdaptadorComment(getContext(), Proposal);
 
         // introduce en el scroll la propuesta seleccionada almacenada en el adaptador
-        //scrollView.setAdapter(mAdapter);
+        scrollView.setAdapter(mAdapter);
 
 
         // Usar un administrador para LinearLayout y aplicarlo al scroll
@@ -219,169 +203,96 @@ public class DetailFragment extends Fragment {
 
     } // fin onCreate
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        loadMap();
+    }
+
+    private void loadMap() {
+        if (mSupportMapFragment == null) {
+            android.app.FragmentManager fm = getFragmentManager();
+            android.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            mSupportMapFragment = MapFragment.newInstance();
+            fragmentTransaction.replace(R.id.mapwhere, mSupportMapFragment).commit();
+        }
+
+        if (mSupportMapFragment != null) {
+            mSupportMapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    if (googleMap != null) {
+
+                        googleMap.getUiSettings().setAllGesturesEnabled(true);
+
+                        // -> marker_latlng recoge la latitud y longitud en formato double//
+                        LatLng marker_latlng = new LatLng(Double.parseDouble(Proposal.getLAT()), Double.parseDouble(Proposal.getLON()));
+                        // configurando la vista del mapa, setea posición, mueve la camara,aplica zoom, coloca título y controles
+                        CameraPosition cameraPosition = new CameraPosition.Builder().target(marker_latlng).zoom(15.0f).build();
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+                        googleMap.moveCamera(cameraUpdate);
+                        googleMap.addMarker(new MarkerOptions().position(marker_latlng).title(Proposal.getTITULO()));
+                        googleMap.getUiSettings().setCompassEnabled(true);
+                        googleMap.getUiSettings().setZoomControlsEnabled(true);
+
+                    }
+                }
+            });
+
+        }
+    }
+
     /**
      * Obtiene los datos desde el servidor
      */
     public void cargarDatos() {
-
-
-        // getField_proposal_country --> Spain
-        // getField_proposal_aal1 --> Comunidad de Madrid
-        // getField_proposal_aal2 --> Madrid
-        // getField_proposal_locality --> Madrid
-        // getField_proposal_postal_code --> 28023
-        // getField_proposal_route_name --> Calle del Puerto de Balbarrán
-        // getDefault_langcode --> 1 ¿?
-        // getField_proposal_id_aviso --> ¿?
-        // getChanged --> 1463892295 milisegundos
-        // getNid --> 457 xejm
-        // getPath --> ¿?
-        // getPromote --> 0, ¿?
-        // getRevision_log --> ¿?
-        // getStatus() --> 1, ¿?
-        // getSticky --> 0 , ¿?
-        // getUid().getUrl() --> /en/user/301
-        // getVid --> 374
-        // getLangcode --> en,
-        // getField_proposal_status().getUrl() --> en/taxonomy/term/1
-        // getField_proposal_status().getTarget_id --> 1, ¿?
-        // getField_proposal_status().getTarget_type --> taxonomy_term
-        // MAPA
-        // getLoc().getLatitude() --> 40.383617
-        // taxonomy/term/ ----------------------->
-        // term/3 --> Urban equipament
-        // temr/4 --> Cleaning
-        // term/5 --> Mobility
-        // term/6 --> Green areas
-        // term/7 --> Neighborhood life
-        // term/8 --> Others
-
-        // Infrastructure.getPropuestaSeleccionada();
-
-
-        // título
-        // http://stag.hackityapp.com/en/api/category/8
-
-        // Taxonomia UrbanEquipment = new Taxonomia(3,
-        // Taxonomia Cleaning = new Taxonomia(4,
-        // Taxonomia Mobility = new Taxonomia(5
-        // Taxonomia GreenAreas = new Taxonomia(6,
-        // Taxonomia NeighborhoodLife = new Taxonomia(7,
-        // Taxonomia Other = new Taxonomia(8,
-
-        //
-        //"field_proposal_status","target_id","1"
-
 
         /**
          * SETEA LOS VALORES
          *
          */
         // TITULO
-     /*  viewTituloDetalle.setText(PropSeleecionada.getTitle());
+       viewTituloDetalle.setText(Proposal.getTITULO());
 
         // DESCRIPCION
-        viewDescripcionDetalle.setText(PropSeleecionada.getBody().getValue());
+        viewDescripcionDetalle.setText(Proposal.getDESCRIPCION());
 
         // FECHA
-        String fecha = PropuestaHandler.parseDate(PropSeleecionada.getCreated());
-        viewFechaDetalle.setText(fecha);
+        viewFechaDetalle.setText(Proposal.getFECHA());
 
         // DIRECCION
-        viewDireccion.setText(PropSeleecionada.getField_proposal_formatted_address());
+        viewDireccion.setText(Proposal.getUBICACION());
 
         // CATEGORIA
-        String categoryName = Taxonomia.getCategoryName(PropuestaHandler.getColorKey(PropSeleecionada.getField_proposal_category().getUrl()));
-        viewCategoriaDetalle.setText(categoryName);
+        viewCategoriaDetalle.setText(Proposal.getCATEGORIA());
 
         // ESTADO -  abierta/cerrada
-        if (abierta.equals(PropSeleecionada.getStatus())) {
+        if (abierta.equals(Proposal.getSTATUS())) {
             viewEstado.setText("Abierta");
             viewFlagState.setImageResource(R.drawable.ic_bookmark); // cambia la bandera
         } else {
             viewEstado.setText("Cerrada");
             viewFlagState.setImageResource(R.drawable.bookmark_check);
-        }*/
-
-
-        /**
-         * SETEA FOTO DE PROPUESTA
-         */
-//        Glide.with(this).load(PropSeleecionada.getImage()[0].getUrl()).placeholder(R.drawable.bg_city2).centerCrop().into(viewCabeceraDetalle);
-
-
-        /**
-         * COMENTARIOS ---------------------------
-         *
-         */
-        /**
-         * SETEA NOBRE USUARIO COMENTARIO
-         */
-        //   viewUsername.setText(String.format("idUsuario %s", PropSeleecionada.getUid().getTarget_id() + " propuso"));
-
-        /**
-         * SETEA FOTO RANDOM HERO
-         */
-        //  viewFoto.setImageDrawable(RandomHero.getHero().getResourceId(R.id.));
-
-
-        //extraemos el drawable en un bitmap
-        /*
-        Drawable originalDrawable = v.getResources().getDrawable(RandomHero.getHero().getResourceId());
-        Drawable originalDrawable = getResources().getDrawable(RandomHero.getHero().getResourceId());
-        Drawable originalDrawable = v.getResources().getDrawable(R.drawable.photo_profile);
-        Bitmap originalBitmap = ((BitmapDrawable) originalDrawable).getBitmap();
-        */
-
-
-        //Creamos el drawable redondeado
-        /*
-        RoundedBitmapDrawable roundedDrawable =
-                RoundedBitmapDrawableFactory.create(getResources(), originalBitmap);
-                */
-
-        //Asignamos el CornerRadius
-        /*
-        roundedDrawable.setCornerRadius(originalBitmap.getHeight());
-         */
-
-
-        // Seteamos el contenido mas abajo
-        //viewFoto.setImageDrawable(roundedDrawable);
-
-
-       // viewUsername.setText(RandomHero.getHero().getName());
-
-
+        }
+        viewUsername.setText(Proposal.getUSER_NAME());
+        Glide.with(this)
+                .load(Proposal.getFOTO_USERCOM())
+                .centerCrop()
+                .into(viewFoto);
+        loadMap();
     }
 
-
-    public void notifyWhenDataChanged() {
-        //adapter recoge el Comentario seleccionado
-        /*
-        mAdapter = new AdaptadorComment(getContext(), Infrastructure.getComment());
-        scrollView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
-        */
-
-    }
 
     /**
      * Se carga una imagen aleatoria para el detalle
      */
     public void loadImageParallax() {
-
-        // DetailFragment mDetailFragment=(DetailFragment)getSupportFragmentManager().findFragmentByTag(DetailFragment.TAG);
-        // ImageView image = (ImageView) findViewById(R.id.image_paralax);
-
-        // Usando Glide para la carga asíncrona
-        /*
-        if (PropSeleecionada.getImage() != null)
+        if (Proposal.getURL_IMAGEN() != null)
             Glide.with(this)
-                    .load(PropSeleecionada.getImage()[0].getUrl())
+                    .load(Proposal.getURL_IMAGEN())
                     .centerCrop()
                     .into(viewImageParalax);
-                    */
+
     }
 
 
