@@ -60,6 +60,7 @@ public class AdaptadorPropuestas extends RecyclerView.Adapter<AdaptadorPropuesta
         @Override
         public void onClick(View view) {
             escucha.onClick(this, obtenerIdAlquiler(getAdapterPosition()));
+
         }
     }
 
@@ -73,7 +74,7 @@ public class AdaptadorPropuestas extends RecyclerView.Adapter<AdaptadorPropuesta
         return null;
     }
 
-    public AdaptadorPropuestas(Context contexto, OnItemClickListener escucha) {
+    AdaptadorPropuestas(Context contexto, OnItemClickListener escucha) {
         this.contexto = contexto;
         this.escucha = escucha;
 

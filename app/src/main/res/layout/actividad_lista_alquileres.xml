@@ -23,6 +23,13 @@
 
     <include layout="@layout/contenido_actividad_lista_alquileres" />
 
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.herprogramacion.alquileres.DetailFragment"
+        android:id="@+id/fragment"
+        tools:layout="@layout/fragment_detail" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
